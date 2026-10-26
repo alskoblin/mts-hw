@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+env:
+  IMAGE: ghcr.io/${{ github.repository }}/api-test:${{ github.sha }}
+
+jobs:
+  build-image:
+    name: Build Docker image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: docker build
+        run: docker build -t "$IMAGE" .
+
+      - name: docker push
+        run: docker push "$IMAGE"
+
+  run-api-test:
+    name: Run API test in container
+    needs: build-image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: docker pull
+        run: docker pull "$IMAGE"
+
+      - name: docker run
+        env:
+          PLAYGROUND_USERNAME: ${{ secrets.PLAYGROUND_USERNAME }}
+          PLAYGROUND_PASSWORD: ${{ secrets.PLAYGROUND_PASSWORD }}
+        run: |
+          docker run --rm \
+            -e PLAYGROUND_USERNAME \
+            -e PLAYGROUND_PASSWORD \
+            "$IMAGE"
