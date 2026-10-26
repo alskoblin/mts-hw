@@ -37,4 +37,4 @@ Exit code контейнера = exit code `mvn test`: `0` при успехе, 
 - `build-image` — checkout и `docker build` из текущего состояния репозитория;
 - `run-api-test` — `docker run` собранного образа, exit code теста определяет статус pipeline.
 
-Успешный pipeline:
+Успешный pipeline: https://github.com/alskoblin/mts-hw/actions/runs/40374127139
