@@ -1,0 +1,10 @@
+.git
+.gitignore
+.github/
+target/
+.idea/
+*.iml
+.DS_Store
+README.md
+*.docx
+*.postman_collection.json
